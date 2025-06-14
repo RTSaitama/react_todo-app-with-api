@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Todo, TodoError } from '../types/typedefs';
 import {
   postTodo,
@@ -62,24 +62,16 @@ export const useTodos = () => {
     inputRef.current?.focus();
   }, [todos, loadingTodo]);
 
-  const allCompleted = useMemo(
-    () => todos.length > 0 && todos.every(td => td.completed),
-    [todos],
-  );
-
-  const someCompleted = useMemo(() => todos.some(td => td.completed), [todos]);
-
-  const activeCount = useMemo(
-    () => todos.filter(todo => !todo.completed).length,
-    [todos],
-  );
-
-  const completedCount = useMemo(
-    () => todos.filter(todo => todo.completed).length,
-    [todos],
-  );
-
-  const todosFiltered = useMemo(() => {
+  // memo?
+  const allCompleted = todos.length > 0 && todos.every(td => td.completed);
+  // memo?
+  const someCompleted = todos.some(td => td.completed);
+  // memo?
+  const activeCount = todos.filter(todo => !todo.completed).length;
+  // memo?
+  const completedCount = todos.filter(todo => todo.completed).length;
+  // memo?
+  const todosFiltered = (() => {
     switch (filterStatus) {
       case FilterStatus.ACTIVE:
         return todos.filter(todo => !todo.completed);
@@ -88,7 +80,7 @@ export const useTodos = () => {
       default:
         return todos;
     }
-  }, [todos, filterStatus]);
+  })();
 
   const addTodo = async (title: string) => {
     const noSpaceQuery = title.trim();
@@ -165,8 +157,6 @@ export const useTodos = () => {
       completed: newIfCompletedStatus,
     }));
 
-    setTodos(todosDone);
-
     try {
       await Promise.all(
         todos.map(todo =>
@@ -176,12 +166,9 @@ export const useTodos = () => {
 
       setTodos(todosDone);
     } catch (err) {
-      setTodos(todos);
       showError(ToDoServiceErrors.Unknown);
     }
   };
-
-  const clearQuery = () => setQuery('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -214,7 +201,6 @@ export const useTodos = () => {
     query,
     setQuery,
     inputRef,
-    clearQuery,
     handleSubmit,
     allCompleted,
     someCompleted,
