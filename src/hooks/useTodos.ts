@@ -165,6 +165,8 @@ export const useTodos = () => {
       completed: newIfCompletedStatus,
     }));
 
+    setTodos(todosDone);
+
     try {
       await Promise.all(
         todos.map(todo =>
@@ -174,6 +176,7 @@ export const useTodos = () => {
 
       setTodos(todosDone);
     } catch (err) {
+      setTodos(todos);
       showError(ToDoServiceErrors.Unknown);
     }
   };
@@ -185,7 +188,7 @@ export const useTodos = () => {
 
     addTodo(query).then(success => {
       if (success) {
-        clearQuery();
+        setQuery('');
       }
     });
   };
