@@ -28,6 +28,7 @@ export const App: React.FC = () => {
     activeCount,
     toggleAll,
     clearCompleted,
+    isLoading,
   } = todoListState;
 
   if (!USER_ID) {
@@ -40,14 +41,16 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          <button
-            type="button"
-            className={classNames('todoapp__toggle-all', {
-              'active': allCompleted,
-            })}
-            data-cy="ToggleAllButton"
-            onClick={toggleAll}
-          />
+          {todos.length > 0 && !isLoading && (
+            <button
+              type="button"
+              className={classNames('todoapp__toggle-all', {
+                active: allCompleted,
+              })}
+              data-cy="ToggleAllButton"
+              onClick={toggleAll}
+            />
+          )}
 
           <form onSubmit={handleSubmit}>
             <input

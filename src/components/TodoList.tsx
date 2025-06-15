@@ -9,29 +9,17 @@ interface TodoListProps {
   setLoadingTodoId: (id: number | null) => void;
 }
 
-export const TodoList: React.FC<TodoListProps> = ({
-  todoListState,
-  loadingTodoId,
-  setLoadingTodoId,
-}) => {
+export const TodoList: React.FC<TodoListProps> = ({ todoListState }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {todoListState.todosFiltered.map(todo => (
-        <TodoCard
-          key={todo.id}
-          todoListState={todoListState}
-          todo={todo}
-          loadingTodoId={loadingTodoId}
-          setLoadingTodoId={setLoadingTodoId}
-        />
+        <TodoCard key={todo.id} todoListState={todoListState} todo={todo} />
       ))}
       {todoListState.tempTodo && (
         <TodoCard
           key={0}
           todo={todoListState.tempTodo}
-          loadingTodoId={loadingTodoId}
           todoListState={todoListState}
-          setLoadingTodoId={setLoadingTodoId}
         />
       )}
     </section>
