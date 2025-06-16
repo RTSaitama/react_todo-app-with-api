@@ -59,6 +59,7 @@ export const TodoCard: React.FC<TodoCardProps> = ({ todoListState, todo }) => {
       data-cy="Todo"
       className={classNames('todo', {
         completed: todo.completed,
+        'item-enter-done': !isTemp && !isLoadingThisTodo,
       })}
     >
       <label className="todo__status-label">

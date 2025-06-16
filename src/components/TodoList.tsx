@@ -12,16 +12,18 @@ interface TodoListProps {
 export const TodoList: React.FC<TodoListProps> = ({ todoListState }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {todoListState.todosFiltered.map(todo => (
-        <TodoCard key={todo.id} todoListState={todoListState} todo={todo} />
-      ))}
-      {todoListState.tempTodo && (
-        <TodoCard
-          key={0}
-          todo={todoListState.tempTodo}
-          todoListState={todoListState}
-        />
-      )}
+      <div>
+        {todoListState.todosFiltered.map(todo => (
+          <TodoCard key={todo.id} todoListState={todoListState} todo={todo} />
+        ))}
+        {todoListState.tempTodo && (
+          <TodoCard
+            key="temp-todo"
+            todo={todoListState.tempTodo}
+            todoListState={todoListState}
+          />
+        )}
+      </div>
     </section>
   );
 };

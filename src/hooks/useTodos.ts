@@ -119,8 +119,8 @@ export const useTodos = () => {
 
       return false;
     } finally {
-      setLoadingTodo(null);
       setTempTodo(null);
+      setLoadingTodo(null);
     }
   };
 
