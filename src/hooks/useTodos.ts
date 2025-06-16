@@ -65,15 +65,14 @@ export const useTodos = () => {
     inputRef.current?.focus();
   }, [todos, loadingTodo]);
 
-  // memo?
   const allCompleted = todos.length > 0 && todos.every(td => td.completed);
-  // memo?
+
   const someCompleted = todos.some(td => td.completed);
-  // memo?
+
   const activeCount = todos.filter(todo => !todo.completed).length;
-  // memo?
+
   const completedCount = todos.filter(todo => todo.completed).length;
-  // memo?
+
   const todosFiltered = (() => {
     switch (filterStatus) {
       case FilterStatus.ACTIVE:
