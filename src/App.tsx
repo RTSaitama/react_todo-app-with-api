@@ -5,23 +5,23 @@ import React from 'react';
 import classNames from 'classnames';
 import { USER_ID } from './api/todosMethods';
 import { UserWarning } from './UserWarning';
-import { useTodos, FilterStatus } from './hooks/useTodos';
+import { useTodos } from './hooks/useTodos';
 import { TodoList } from './components/TodoList';
 import { Form } from './components/Form';
+import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
   const todoListState = useTodos();
   const {
     todos,
-    error,
-    setError,
+    errorMessage,
+    setErrorMessage,
     filterStatus,
     setFilterStatus,
     loadingTodo,
-    setLoadingTodo,
-    query,
-    setQuery,
+    title,
+    setTitle,
     allCompleted,
     someCompleted,
     activeCount,
@@ -30,6 +30,16 @@ export const App: React.FC = () => {
     isLoading,
     handleSubmit,
     inputRef,
+    todosFiltered,
+    tempTodo,
+    editingTodo,
+    editingTitle,
+    toggleTodo,
+    removeTodo,
+    toStartEditing,
+    toCancelEditing,
+    toSaveEditedTodo,
+    setEditingTitle,
   } = todoListState;
 
   if (!USER_ID) {
@@ -55,56 +65,36 @@ export const App: React.FC = () => {
           <Form
             loadingTodo={loadingTodo}
             inputRef={inputRef}
-            setQuery={setQuery}
-            query={query}
+            setTitle={setTitle}
+            title={title}
             handleSubmit={handleSubmit}
           />
         </header>
 
         <TodoList
-          todoListState={todoListState}
-          query={query}
-          setQuery={setQuery}
-          loadingTodoId={loadingTodo}
-          setLoadingTodoId={setLoadingTodo}
+          todosFiltered={todosFiltered}
+          tempTodo={tempTodo}
+          loadingTodo={loadingTodo}
+          editingTodo={editingTodo}
+          editingTitle={editingTitle}
+          toggleTodo={toggleTodo}
+          removeTodo={removeTodo}
+          toStartEditing={toStartEditing}
+          toCancelEditing={toCancelEditing}
+          toSaveEditedTodo={toSaveEditedTodo}
+          setEditingTitle={setEditingTitle}
         />
-
-        {todos.length > 0 ? (
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="TodosCounter">
-              {activeCount} items left
-            </span>
-
-            <nav className="filter" data-cy="Filter">
-              {Object.values(FilterStatus).map(value => (
-                <a
-                  key={value}
-                  href="#/"
-                  className={classNames('filter__link', {
-                    selected: filterStatus === value,
-                  })}
-                  data-cy={`FilterLink${value}`}
-                  onClick={() => setFilterStatus(value)}
-                >
-                  {value}
-                </a>
-              ))}
-            </nav>
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              data-cy="ClearCompletedButton"
-              onClick={clearCompleted}
-              disabled={!someCompleted}
-            >
-              Clear completed
-            </button>
-          </footer>
-        ) : (
-          <>no Todos Left</>
+        {todos.length > 0 && (
+          <Footer
+            activeCount={activeCount}
+            filterStatus={filterStatus}
+            setFilterStatus={setFilterStatus}
+            someCompleted={someCompleted}
+            clearCompleted={clearCompleted}
+          />
         )}
       </div>
-      <ErrorNotification error={error} setError={setError} />
+      <ErrorNotification error={errorMessage} setError={setErrorMessage} />
     </div>
   );
 };

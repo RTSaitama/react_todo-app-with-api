@@ -1,26 +1,32 @@
 import { Todo } from '../types/typedefs';
-import { useTodos } from '../hooks/useTodos';
 import classNames from 'classnames';
 import { useEffect, useRef } from 'react';
 
 interface TodoCardProps {
-  todoListState: ReturnType<typeof useTodos>;
   todo: Todo;
+  loadingTodo: number | null;
+  editingTodo: Todo | null;
+  editingTitle: string;
+  toggleTodo: (id: number) => Promise<void>;
+  removeTodo: (id: number) => Promise<void>;
+  toStartEditing: (todo: Todo) => void;
+  toCancelEditing: () => void;
+  toSaveEditedTodo: (id: number, title: string) => Promise<void>;
+  setEditingTitle: (title: string) => void;
 }
 
-export const TodoCard: React.FC<TodoCardProps> = ({ todoListState, todo }) => {
-  const {
-    loadingTodo,
-    toggleTodo,
-    removeTodo,
-    toStartEditing,
-    editingTodo,
-    editingTitle,
-    setEditingTitle,
-    toCancelEditing,
-    toSaveEditedTodo,
-  } = todoListState;
-
+export const TodoCard: React.FC<TodoCardProps> = ({
+  todo,
+  loadingTodo,
+  editingTodo,
+  editingTitle,
+  toggleTodo,
+  removeTodo,
+  toStartEditing,
+  toCancelEditing,
+  toSaveEditedTodo,
+  setEditingTitle,
+}) => {
   const isLoadingThisTodo = loadingTodo === todo.id;
   const isTemp = todo.id === 0;
   const isEditing = editingTodo?.id === todo.id;

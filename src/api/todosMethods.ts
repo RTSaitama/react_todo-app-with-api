@@ -14,7 +14,6 @@ export const deleteTodo = (todoId: number) => {
   return client.delete(`/todos/${todoId}`);
 };
 
-// тут питання по Partial+Omit разом, чи ок таке писати -_-
 export const updateTodo = (id: number, updates: Partial<Omit<Todo, 'id'>>) => {
   return client.patch<Todo>(`/todos/${id}`, updates);
 };

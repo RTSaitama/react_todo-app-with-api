@@ -3,16 +3,16 @@ import React from 'react';
 
 interface FormProps {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  query: string;
-  setQuery: (value: string) => void;
+  title: string;
+  setTitle: (value: string) => void;
   inputRef: React.RefObject<HTMLInputElement>;
   loadingTodo: number | null;
 }
 
 export const Form: React.FC<FormProps> = ({
   handleSubmit,
-  query,
-  setQuery,
+  title,
+  setTitle,
   inputRef,
   loadingTodo,
 }) => {
@@ -24,8 +24,8 @@ export const Form: React.FC<FormProps> = ({
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         ref={inputRef}
-        value={query}
-        onChange={event => setQuery(event.target.value)}
+        value={title}
+        onChange={event => setTitle(event.target.value)}
         disabled={loadingTodo !== null}
       />
     </form>

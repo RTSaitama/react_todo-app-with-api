@@ -23,28 +23,23 @@ export const ToDoServiceErrors = {
   UnableToUpdateTodo: 'Unable to update a todo',
 } as const;
 
-const ERROR_DURATION = 3000;
-
 export const useTodos = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<TodoError | null>(null);
+  const [errorMessage, setErrorMessage] = useState<TodoError | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>(
     FilterStatus.ALL,
   );
   const [loadingTodo, setLoadingTodo] = useState<number | null>(null);
-  const [query, setQuery] = useState<string>('');
+  const [title, setTitle] = useState<string>('');
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [editingTitle, setEditingTitle] = useState<string>('');
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const showError = (todoError: TodoError) => {
-    setError(todoError);
-    setTimeout(() => {
-      setError(null);
-    }, ERROR_DURATION);
+  const showError = (error: TodoError) => {
+    setErrorMessage(error);
   };
 
   useEffect(() => {
@@ -84,10 +79,10 @@ export const useTodos = () => {
     }
   })();
 
-  const addTodo = async (title: string) => {
-    const noSpaceQuery = title.trim();
+  const addTodo = async (todoTitle: string) => {
+    const noSpacetitle = todoTitle.trim();
 
-    if (!noSpaceQuery) {
+    if (!noSpacetitle) {
       showError(ToDoServiceErrors.Title);
 
       return false;
@@ -95,7 +90,7 @@ export const useTodos = () => {
 
     const newTempTodo = {
       id: 0,
-      title: noSpaceQuery,
+      title: noSpacetitle,
       completed: false,
       userId: USER_ID,
     };
@@ -105,7 +100,7 @@ export const useTodos = () => {
 
     try {
       const newTodo = await postTodo({
-        title: noSpaceQuery,
+        title: noSpacetitle,
         completed: false,
         userId: USER_ID,
       });
@@ -225,9 +220,9 @@ export const useTodos = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    addTodo(query).then(success => {
+    addTodo(title).then(success => {
       if (success) {
-        setQuery('');
+        setTitle('');
       }
     });
   };
@@ -294,8 +289,8 @@ export const useTodos = () => {
   return {
     todos,
     setTodos,
-    error,
-    setError,
+    errorMessage,
+    setErrorMessage,
     isLoading,
     setIsLoading,
     filterStatus,
@@ -311,8 +306,8 @@ export const useTodos = () => {
     clearCompleted,
     toggleAll,
     showError,
-    query,
-    setQuery,
+    title,
+    setTitle,
     inputRef,
     handleSubmit,
     allCompleted,
