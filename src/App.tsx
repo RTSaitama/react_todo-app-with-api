@@ -7,6 +7,7 @@ import { USER_ID } from './api/todosMethods';
 import { UserWarning } from './UserWarning';
 import { useTodos, FilterStatus } from './hooks/useTodos';
 import { TodoList } from './components/TodoList';
+import { Form } from './components/Form';
 import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
@@ -21,14 +22,14 @@ export const App: React.FC = () => {
     setLoadingTodo,
     query,
     setQuery,
-    inputRef,
-    handleSubmit,
     allCompleted,
     someCompleted,
     activeCount,
     toggleAll,
     clearCompleted,
     isLoading,
+    handleSubmit,
+    inputRef,
   } = todoListState;
 
   if (!USER_ID) {
@@ -52,7 +53,7 @@ export const App: React.FC = () => {
             />
           )}
 
-          <form onSubmit={handleSubmit}>
+          {/* <form onSubmit={handleSubmit}>
             <input
               data-cy="NewTodoField"
               type="text"
@@ -63,7 +64,14 @@ export const App: React.FC = () => {
               onChange={event => setQuery(event.target.value)}
               disabled={loadingTodo !== null}
             />
-          </form>
+          </form> */}
+          <Form
+            loadingTodo={loadingTodo}
+            inputRef={inputRef}
+            setQuery={setQuery}
+            query={query}
+            handleSubmit={handleSubmit}
+          />
         </header>
 
         <TodoList
