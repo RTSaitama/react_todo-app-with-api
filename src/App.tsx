@@ -12,7 +12,6 @@ import { Footer } from './components/Footer';
 import { ErrorNotification } from './components/ErrorNotification';
 
 export const App: React.FC = () => {
-  const todoListState = useTodos();
   const {
     todos,
     errorMessage,
@@ -40,7 +39,7 @@ export const App: React.FC = () => {
     toCancelEditing,
     toSaveEditedTodo,
     setEditingTitle,
-  } = todoListState;
+  } = useTodos();
 
   if (!USER_ID) {
     return <UserWarning />;
