@@ -52,19 +52,6 @@ export const App: React.FC = () => {
               onClick={toggleAll}
             />
           )}
-
-          {/* <form onSubmit={handleSubmit}>
-            <input
-              data-cy="NewTodoField"
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={query}
-              ref={inputRef}
-              onChange={event => setQuery(event.target.value)}
-              disabled={loadingTodo !== null}
-            />
-          </form> */}
           <Form
             loadingTodo={loadingTodo}
             inputRef={inputRef}
