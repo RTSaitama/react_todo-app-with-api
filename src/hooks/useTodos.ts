@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Todo, TodoError } from '../types/typedefs';
 import {
   postTodo,
@@ -60,14 +60,15 @@ export const useTodos = () => {
     inputRef.current?.focus();
   }, [todos, loadingTodo]);
 
+  //юз мемо?
   const allCompleted = todos.length > 0 && todos.every(td => td.completed);
-
+  //юз мемо?
   const someCompleted = todos.some(td => td.completed);
-
+  //юз мемо?
   const activeCount = todos.filter(todo => !todo.completed).length;
-
+  //юз мемо?
   const completedCount = todos.filter(todo => todo.completed).length;
-
+  // юз мемо [todos, filterStatus] ?
   const todosFiltered = (() => {
     switch (filterStatus) {
       case FilterStatus.ACTIVE:
@@ -185,6 +186,7 @@ export const useTodos = () => {
     setTodos(stayingTodos);
   };
 
+  // юз коллбек [todos, allCompleted]
   const toggleAll = async () => {
     const newCompletedStatus = !allCompleted;
 
@@ -217,6 +219,7 @@ export const useTodos = () => {
     }
   };
 
+  // юз коллбек [addTodo,title] ???
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -227,16 +230,17 @@ export const useTodos = () => {
     });
   };
 
-  const toStartEditing = (todo: Todo) => {
+  const toStartEditing = useCallback((todo: Todo) => {
     setEditingTodo(todo);
     setEditingTitle(todo.title);
-  };
+  }, []);
 
-  const toCancelEditing = () => {
+  const toCancelEditing = useCallback(() => {
     setEditingTodo(null);
     setEditingTitle('');
-  };
+  }, []);
 
+  // юзколлбек?
   const toSaveEditedTodo = async (todoId: number, newTitle: string) => {
     const trimmedTitle = newTitle.trim();
     const originalTodo = todos.find(t => t.id === todoId);
