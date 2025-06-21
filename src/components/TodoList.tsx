@@ -1,11 +1,12 @@
 import { TodoCard } from './TodoCard';
 import { Todo } from '../types/typedefs';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { LoadingTodo } from '../types/typedefs';
 
 interface TodoListProps {
   todosFiltered: Todo[];
   tempTodo: Todo | null;
-  loadingTodo: number | 'initial' | null;
+  loadingTodo: LoadingTodo;
   toggleTodo: (todoId: number) => Promise<void>;
   removeTodo: (todoId: number) => Promise<void>;
   updateTodoTitle: (todoId: number, newTitle: string) => Promise<void>;

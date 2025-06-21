@@ -1,5 +1,7 @@
 import { ToDoServiceErrors } from '../hooks/useTodos';
 
+export type LoadingTodo = number | 'initial' | null;
+
 export interface Todo {
   id: number;
   userId: number;
