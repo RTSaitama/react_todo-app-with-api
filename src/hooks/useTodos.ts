@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { Todo, TodoError } from '../types/typedefs';
 import {
   postTodo,
@@ -67,12 +67,21 @@ export const useTodos = () => {
     loadingTodo === 0
       ? { id: 0, title: title.trim(), completed: false, userId: USER_ID }
       : null;
-  const allCompleted = todos.length > 0 && todos.every(td => td.completed);
-  const someCompleted = todos.some(td => td.completed);
-  const activeCount = todos.filter(todo => !todo.completed).length;
-  const completedCount = todos.filter(todo => todo.completed).length;
+  const allCompleted = useMemo(
+    () => todos.length > 0 && todos.every(td => td.completed),
+    [todos],
+  );
+  const someCompleted = useMemo(() => todos.some(td => td.completed), [todos]);
+  const activeCount = useMemo(
+    () => todos.filter(todo => !todo.completed).length,
+    [todos],
+  );
+  const completedCount = useMemo(
+    () => todos.filter(todo => todo.completed).length,
+    [todos],
+  );
 
-  const todosFiltered = (() => {
+  const todosFiltered = useMemo(() => {
     switch (filterStatus) {
       case FilterStatus.ACTIVE:
         return todos.filter(todo => !todo.completed);
@@ -81,9 +90,9 @@ export const useTodos = () => {
       default:
         return todos;
     }
-  })();
+  }, [todos, filterStatus]);
 
-  const toggleAll = async () => {
+  const toggleAll = useCallback(async () => {
     const newCompletedStatus = !allCompleted;
 
     const todosToUpdate = todos.filter(
@@ -113,61 +122,67 @@ export const useTodos = () => {
     } catch (err) {
       setErrorMessage(ToDoServiceErrors.UnableToUpdateTodo);
     }
-  };
+  }, [todos, allCompleted]);
 
-  const addTodo = async (todoTitle: string) => {
-    const noSpacetitle = todoTitle.trim();
+  const addTodo = useCallback(
+    async (todoTitle: string) => {
+      const noSpacetitle = todoTitle.trim();
 
-    if (!noSpacetitle) {
-      setErrorMessage(ToDoServiceErrors.Title);
+      if (!noSpacetitle) {
+        setErrorMessage(ToDoServiceErrors.Title);
 
-      return false;
-    }
+        return false;
+      }
 
-    setLoadingTodo(0);
+      setLoadingTodo(0);
 
-    try {
-      const newTodo = await postTodo({
-        title: noSpacetitle,
-        completed: false,
-        userId: USER_ID,
-      });
+      try {
+        const newTodo = await postTodo({
+          title: noSpacetitle,
+          completed: false,
+          userId: USER_ID,
+        });
 
-      setTodos([...todos, newTodo]);
+        setTodos([...todos, newTodo]);
 
-      return true;
-    } catch {
-      setErrorMessage(ToDoServiceErrors.UnableToAddTodo);
+        return true;
+      } catch {
+        setErrorMessage(ToDoServiceErrors.UnableToAddTodo);
 
-      return false;
-    } finally {
-      setLoadingTodo(null);
-    }
-  };
+        return false;
+      } finally {
+        setLoadingTodo(null);
+      }
+    },
+    [todos],
+  );
 
-  const toggleTodo = async (todoId: number) => {
-    const todo = todos.find(td => td.id === todoId);
+  const toggleTodo = useCallback(
+    async (todoId: number) => {
+      const todo = todos.find(td => td.id === todoId);
 
-    if (!todo) {
-      return;
-    }
+      if (!todo) {
+        return;
+      }
 
-    setLoadingTodo(todoId);
+      setLoadingTodo(todoId);
 
-    try {
-      await updateTodo(todoId, { completed: !todo.completed });
+      try {
+        await updateTodo(todoId, { completed: !todo.completed });
 
-      setTodos(prevTodos =>
-        prevTodos.map(td =>
-          td.id === todoId ? { ...td, completed: !td.completed } : td,
-        ),
-      );
-    } catch (err) {
-      setErrorMessage(ToDoServiceErrors.UnableToUpdateTodo);
-    } finally {
-      setLoadingTodo(null);
-    }
-  };
+        setTodos(prevTodos =>
+          prevTodos.map(td =>
+            td.id === todoId ? { ...td, completed: !td.completed } : td,
+          ),
+        );
+      } catch (err) {
+        setErrorMessage(ToDoServiceErrors.UnableToUpdateTodo);
+      } finally {
+        setLoadingTodo(null);
+      }
+    },
+    [todos],
+  );
 
   const removeTodo = async (todoId: number) => {
     try {
@@ -212,15 +227,18 @@ export const useTodos = () => {
     setTodos(stayingTodos);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
 
-    addTodo(title).then(success => {
-      if (success) {
-        setTitle('');
-      }
-    });
-  };
+      addTodo(title).then(success => {
+        if (success) {
+          setTitle('');
+        }
+      });
+    },
+    [addTodo, title],
+  );
 
   const updateTodoTitle = async (todoId: number, newTitle: string) => {
     const trimmedTitle = newTitle.trim();
