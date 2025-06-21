@@ -8,4 +8,5 @@ export interface Todo {
 }
 
 export type TodoError =
-  (typeof ToDoServiceErrors)[keyof typeof ToDoServiceErrors];
+  | (typeof ToDoServiceErrors)[keyof typeof ToDoServiceErrors]
+  | null;

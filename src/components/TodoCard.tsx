@@ -1,35 +1,35 @@
+// TodoCard.tsx
 import { Todo } from '../types/typedefs';
 import classNames from 'classnames';
 import { useEffect, useRef } from 'react';
 
 interface TodoCardProps {
   todo: Todo;
-  loadingTodo: number | null;
+  loadingTodo: number | 'initial' | null;
   editingTodo: Todo | null;
-  editingTitle: string;
-  toggleTodo: (id: number) => Promise<void>;
-  removeTodo: (id: number) => Promise<void>;
-  toStartEditing: (todo: Todo) => void;
-  toCancelEditing: () => void;
-  toSaveEditedTodo: (id: number, title: string) => Promise<void>;
-  setEditingTitle: (title: string) => void;
+  onToggle: (todoId: number) => Promise<void>;
+  onRemove: (todoId: number) => Promise<void>;
+  onStartEdit: (todo: Todo) => void;
+  onCancelEdit: () => void;
+  onSaveEdit: (todoId: number, newTitle: string) => Promise<void>;
+  onUpdateEditingTitle: (newTitle: string) => void;
 }
 
 export const TodoCard: React.FC<TodoCardProps> = ({
   todo,
   loadingTodo,
   editingTodo,
-  editingTitle,
-  toggleTodo,
-  removeTodo,
-  toStartEditing,
-  toCancelEditing,
-  toSaveEditedTodo,
-  setEditingTitle,
+  onToggle,
+  onRemove,
+  onStartEdit,
+  onCancelEdit,
+  onSaveEdit,
+  onUpdateEditingTitle,
 }) => {
   const isLoadingThisTodo = loadingTodo === todo.id;
   const isTemp = todo.id === 0;
   const isEditing = editingTodo?.id === todo.id;
+  const editingTitle = editingTodo?.title || '';
 
   const editInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,22 +41,22 @@ export const TodoCard: React.FC<TodoCardProps> = ({
 
   const handleDoubleClick = () => {
     if (!isLoadingThisTodo && !isTemp) {
-      toStartEditing(todo);
+      onStartEdit(todo);
     }
   };
 
   const handleEditSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    toSaveEditedTodo(todo.id, editingTitle);
+    onSaveEdit(todo.id, editingTitle);
   };
 
   const handleEditBlur = () => {
-    toSaveEditedTodo(todo.id, editingTitle);
+    onSaveEdit(todo.id, editingTitle);
   };
 
   const handleEditKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      toCancelEditing();
+      onCancelEdit();
     }
   };
 
@@ -74,7 +74,7 @@ export const TodoCard: React.FC<TodoCardProps> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => toggleTodo(todo.id)}
+          onChange={() => onToggle(todo.id)}
           aria-label="todostatus-label"
           disabled={isLoadingThisTodo || isTemp}
         />
@@ -99,7 +99,7 @@ export const TodoCard: React.FC<TodoCardProps> = ({
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
             value={editingTitle}
-            onChange={event => setEditingTitle(event.target.value)}
+            onChange={event => onUpdateEditingTitle(event.target.value)}
             onBlur={handleEditBlur}
             onKeyUp={handleEditKeyUp}
             disabled={isLoadingThisTodo}
@@ -118,7 +118,7 @@ export const TodoCard: React.FC<TodoCardProps> = ({
             type="button"
             className="todo__remove"
             data-cy="TodoDelete"
-            onClick={() => removeTodo(todo.id)}
+            onClick={() => onRemove(todo.id)}
             disabled={isLoadingThisTodo || isTemp}
           >
             ×

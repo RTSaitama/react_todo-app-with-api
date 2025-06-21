@@ -2,11 +2,11 @@
 import React from 'react';
 
 interface FormProps {
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  title: string;
-  setTitle: (value: string) => void;
+  loadingTodo: number | 'initial' | null;
   inputRef: React.RefObject<HTMLInputElement>;
-  loadingTodo: number | null;
+  setTitle: React.Dispatch<React.SetStateAction<string>>;
+  title: string;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export const Form: React.FC<FormProps> = ({

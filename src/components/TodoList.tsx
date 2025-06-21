@@ -1,18 +1,18 @@
 import { TodoCard } from './TodoCard';
 import { Todo } from '../types/typedefs';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+
 interface TodoListProps {
   todosFiltered: Todo[];
   tempTodo: Todo | null;
-  loadingTodo: number | null;
+  loadingTodo: number | 'initial' | null;
   editingTodo: Todo | null;
-  editingTitle: string;
-  toggleTodo: (id: number) => Promise<void>;
-  removeTodo: (id: number) => Promise<void>;
+  toggleTodo: (todoId: number) => Promise<void>;
+  removeTodo: (todoId: number) => Promise<void>;
   toStartEditing: (todo: Todo) => void;
   toCancelEditing: () => void;
-  toSaveEditedTodo: (id: number, title: string) => Promise<void>;
-  setEditingTitle: (title: string) => void;
+  toSaveEditedTodo: (todoId: number, newTitle: string) => Promise<void>;
+  updateEditingTodoTitle: (newTitle: string) => void;
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
@@ -20,13 +20,12 @@ export const TodoList: React.FC<TodoListProps> = ({
   tempTodo,
   loadingTodo,
   editingTodo,
-  editingTitle,
   toggleTodo,
   removeTodo,
   toStartEditing,
   toCancelEditing,
   toSaveEditedTodo,
-  setEditingTitle,
+  updateEditingTodoTitle,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -39,13 +38,12 @@ export const TodoList: React.FC<TodoListProps> = ({
                 todo={todo}
                 loadingTodo={loadingTodo}
                 editingTodo={editingTodo}
-                editingTitle={editingTitle}
-                toggleTodo={toggleTodo}
-                removeTodo={removeTodo}
-                toStartEditing={toStartEditing}
-                toCancelEditing={toCancelEditing}
-                toSaveEditedTodo={toSaveEditedTodo}
-                setEditingTitle={setEditingTitle}
+                onToggle={toggleTodo}
+                onRemove={removeTodo}
+                onStartEdit={toStartEditing}
+                onCancelEdit={toCancelEditing}
+                onSaveEdit={toSaveEditedTodo}
+                onUpdateEditingTitle={updateEditingTodoTitle}
               />
             </CSSTransition>
           ))}
@@ -56,13 +54,12 @@ export const TodoList: React.FC<TodoListProps> = ({
                 todo={tempTodo}
                 loadingTodo={loadingTodo}
                 editingTodo={editingTodo}
-                editingTitle={editingTitle}
-                toggleTodo={toggleTodo}
-                removeTodo={removeTodo}
-                toStartEditing={toStartEditing}
-                toCancelEditing={toCancelEditing}
-                toSaveEditedTodo={toSaveEditedTodo}
-                setEditingTitle={setEditingTitle}
+                onToggle={toggleTodo}
+                onRemove={removeTodo}
+                onStartEdit={toStartEditing}
+                onCancelEdit={toCancelEditing}
+                onSaveEdit={toSaveEditedTodo}
+                onUpdateEditingTitle={updateEditingTodoTitle}
               />
             </CSSTransition>
           )}

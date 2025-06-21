@@ -15,7 +15,6 @@ export const App: React.FC = () => {
   const {
     todos,
     errorMessage,
-    setErrorMessage,
     filterStatus,
     setFilterStatus,
     loadingTodo,
@@ -32,13 +31,13 @@ export const App: React.FC = () => {
     todosFiltered,
     tempTodo,
     editingTodo,
-    editingTitle,
     toggleTodo,
     removeTodo,
     toStartEditing,
     toCancelEditing,
     toSaveEditedTodo,
-    setEditingTitle,
+    updateEditingTodoTitle,
+    showError,
   } = useTodos();
 
   if (!USER_ID) {
@@ -75,13 +74,12 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           loadingTodo={loadingTodo}
           editingTodo={editingTodo}
-          editingTitle={editingTitle}
           toggleTodo={toggleTodo}
           removeTodo={removeTodo}
           toStartEditing={toStartEditing}
           toCancelEditing={toCancelEditing}
           toSaveEditedTodo={toSaveEditedTodo}
-          setEditingTitle={setEditingTitle}
+          updateEditingTodoTitle={updateEditingTodoTitle}
         />
         {todos.length > 0 && (
           <Footer
@@ -93,7 +91,10 @@ export const App: React.FC = () => {
           />
         )}
       </div>
-      <ErrorNotification error={errorMessage} setError={setErrorMessage} />
+      <ErrorNotification
+        error={errorMessage}
+        onClearError={() => showError(null)}
+      />
     </div>
   );
 };

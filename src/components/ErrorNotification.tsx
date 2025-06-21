@@ -1,16 +1,17 @@
 import { useEffect } from 'react';
 import classNames from 'classnames';
 import { TodoError } from '../types/typedefs';
+
 interface ErrorNotificationProps {
-  error?: string | null;
-  setError: (error: TodoError | null) => void;
+  error: TodoError | null;
+  onClearError: () => void;
 }
 
 const ERROR_DURATION = 3000;
 
 export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
   error,
-  setError,
+  onClearError,
 }) => {
   useEffect(() => {
     if (!error) {
@@ -18,11 +19,11 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
     }
 
     const timer = setTimeout(() => {
-      setError(null);
+      onClearError();
     }, ERROR_DURATION);
 
     return () => clearTimeout(timer);
-  }, [error, setError]);
+  }, [error, onClearError]);
 
   return (
     <div
@@ -36,9 +37,7 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => {
-          setError(null);
-        }}
+        onClick={onClearError}
       />
       {error}
     </div>

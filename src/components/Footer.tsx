@@ -5,7 +5,7 @@ import { FilterStatus } from '../hooks/useTodos';
 interface FooterProps {
   activeCount: number;
   filterStatus: FilterStatus;
-  setFilterStatus: (status: FilterStatus) => void;
+  setFilterStatus: React.Dispatch<React.SetStateAction<FilterStatus>>;
   someCompleted: boolean;
   clearCompleted: () => Promise<void>;
 }

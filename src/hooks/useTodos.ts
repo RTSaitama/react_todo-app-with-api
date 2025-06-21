@@ -25,16 +25,15 @@ export const ToDoServiceErrors = {
 
 export const useTodos = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<TodoError | null>(null);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>(
     FilterStatus.ALL,
   );
-  const [loadingTodo, setLoadingTodo] = useState<number | null>(null);
+  const [loadingTodo, setLoadingTodo] = useState<number | 'initial' | null>(
+    null,
+  );
   const [title, setTitle] = useState<string>('');
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-  const [editingTitle, setEditingTitle] = useState<string>('');
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -42,15 +41,19 @@ export const useTodos = () => {
     setErrorMessage(error);
   };
 
+  const clearError = useCallback(() => {
+    setErrorMessage(null);
+  }, []);
+
   useEffect(() => {
     const loadTodos = () => {
-      setIsLoading(true);
+      setLoadingTodo('initial');
       getTodos()
         .then(setTodos)
         .catch(() => {
-          showError(ToDoServiceErrors.UnableToLoad);
+          setErrorMessage(ToDoServiceErrors.UnableToLoad);
         })
-        .finally(() => setIsLoading(false));
+        .finally(() => setLoadingTodo(null));
     };
 
     loadTodos();
@@ -60,7 +63,11 @@ export const useTodos = () => {
     inputRef.current?.focus();
   }, [todos, loadingTodo]);
 
-  //юз мемо?
+  const isLoading = loadingTodo === 'initial';
+  const tempTodo =
+    loadingTodo === 0
+      ? { id: 0, title: title.trim(), completed: false, userId: USER_ID }
+      : null;
   const allCompleted = todos.length > 0 && todos.every(td => td.completed);
   //юз мемо?
   const someCompleted = todos.some(td => td.completed);
@@ -79,112 +86,6 @@ export const useTodos = () => {
         return todos;
     }
   })();
-
-  const addTodo = async (todoTitle: string) => {
-    const noSpacetitle = todoTitle.trim();
-
-    if (!noSpacetitle) {
-      showError(ToDoServiceErrors.Title);
-
-      return false;
-    }
-
-    const newTempTodo = {
-      id: 0,
-      title: noSpacetitle,
-      completed: false,
-      userId: USER_ID,
-    };
-
-    setTempTodo(newTempTodo);
-    setLoadingTodo(0);
-
-    try {
-      const newTodo = await postTodo({
-        title: noSpacetitle,
-        completed: false,
-        userId: USER_ID,
-      });
-
-      setTodos([...todos, newTodo]);
-
-      return true;
-    } catch {
-      showError(ToDoServiceErrors.UnableToAddTodo);
-
-      return false;
-    } finally {
-      setTempTodo(null);
-      setLoadingTodo(null);
-    }
-  };
-
-  const toggleTodo = async (todoId: number) => {
-    const todo = todos.find(td => td.id === todoId);
-
-    if (!todo) {
-      return;
-    }
-
-    setLoadingTodo(todoId);
-
-    try {
-      await updateTodo(todoId, { completed: !todo.completed });
-
-      setTodos(prevTodos =>
-        prevTodos.map(td =>
-          td.id === todoId ? { ...td, completed: !td.completed } : td,
-        ),
-      );
-    } catch (err) {
-      showError(ToDoServiceErrors.UnableToUpdateTodo);
-    } finally {
-      setLoadingTodo(null);
-    }
-  };
-
-  const removeTodo = async (todoId: number) => {
-    try {
-      setLoadingTodo(todoId);
-      await deleteTodo(todoId);
-
-      const todosAfterDelete = todos.filter(td => td.id !== todoId);
-
-      setTodos(todosAfterDelete);
-    } catch (err) {
-      showError(ToDoServiceErrors.UnableToDeleteTodo);
-    } finally {
-      setLoadingTodo(null);
-    }
-  };
-
-  const clearCompleted = async () => {
-    const todosDone = todos.filter(td => td.completed === true);
-
-    if (todosDone.length === 0) {
-      return;
-    }
-
-    const deleteResults = [];
-
-    for (const todo of todosDone) {
-      try {
-        await deleteTodo(todo.id);
-        deleteResults.push({ id: todo.id, success: true });
-      } catch (err) {
-        deleteResults.push({ id: todo.id, success: false });
-        showError(ToDoServiceErrors.UnableToDeleteTodo);
-      }
-    }
-
-    const deletedTodos = deleteResults
-      .filter(result => result.success)
-      .map(result => result.id);
-
-    const stayingTodos = todos.filter(todo => !deletedTodos.includes(todo.id));
-
-    setTodos(stayingTodos);
-  };
 
   // юз коллбек [todos, allCompleted]
   const toggleAll = async () => {
@@ -215,8 +116,105 @@ export const useTodos = () => {
         }),
       );
     } catch (err) {
-      showError(ToDoServiceErrors.UnableToUpdateTodo);
+      setErrorMessage(ToDoServiceErrors.UnableToUpdateTodo);
     }
+  };
+
+  const addTodo = async (todoTitle: string) => {
+    const noSpacetitle = todoTitle.trim();
+
+    if (!noSpacetitle) {
+      setErrorMessage(ToDoServiceErrors.Title);
+
+      return false;
+    }
+
+    setLoadingTodo(0);
+
+    try {
+      const newTodo = await postTodo({
+        title: noSpacetitle,
+        completed: false,
+        userId: USER_ID,
+      });
+
+      setTodos([...todos, newTodo]);
+
+      return true;
+    } catch {
+      setErrorMessage(ToDoServiceErrors.UnableToAddTodo);
+
+      return false;
+    } finally {
+      setLoadingTodo(null);
+    }
+  };
+
+  const toggleTodo = async (todoId: number) => {
+    const todo = todos.find(td => td.id === todoId);
+
+    if (!todo) {
+      return;
+    }
+
+    setLoadingTodo(todoId);
+
+    try {
+      await updateTodo(todoId, { completed: !todo.completed });
+
+      setTodos(prevTodos =>
+        prevTodos.map(td =>
+          td.id === todoId ? { ...td, completed: !td.completed } : td,
+        ),
+      );
+    } catch (err) {
+      setErrorMessage(ToDoServiceErrors.UnableToUpdateTodo);
+    } finally {
+      setLoadingTodo(null);
+    }
+  };
+
+  const removeTodo = async (todoId: number) => {
+    try {
+      setLoadingTodo(todoId);
+      await deleteTodo(todoId);
+
+      const todosAfterDelete = todos.filter(td => td.id !== todoId);
+
+      setTodos(todosAfterDelete);
+    } catch (err) {
+      setErrorMessage(ToDoServiceErrors.UnableToDeleteTodo);
+    } finally {
+      setLoadingTodo(null);
+    }
+  };
+
+  const clearCompleted = async () => {
+    const todosDone = todos.filter(td => td.completed === true);
+
+    if (todosDone.length === 0) {
+      return;
+    }
+
+    const deleteResults = [];
+
+    for (const todo of todosDone) {
+      try {
+        await deleteTodo(todo.id);
+        deleteResults.push({ id: todo.id, success: true });
+      } catch (err) {
+        deleteResults.push({ id: todo.id, success: false });
+        setErrorMessage(ToDoServiceErrors.UnableToDeleteTodo);
+      }
+    }
+
+    const deletedTodos = deleteResults
+      .filter(result => result.success)
+      .map(result => result.id);
+
+    const stayingTodos = todos.filter(todo => !deletedTodos.includes(todo.id));
+
+    setTodos(stayingTodos);
   };
 
   // юз коллбек [addTodo,title] ???
@@ -232,12 +230,10 @@ export const useTodos = () => {
 
   const toStartEditing = useCallback((todo: Todo) => {
     setEditingTodo(todo);
-    setEditingTitle(todo.title);
   }, []);
 
   const toCancelEditing = useCallback(() => {
     setEditingTodo(null);
-    setEditingTitle('');
   }, []);
 
   // юзколлбек?
@@ -265,7 +261,7 @@ export const useTodos = () => {
         setTodos(todosAfterDelete);
         toCancelEditing();
       } catch (err) {
-        showError(ToDoServiceErrors.UnableToDeleteTodo);
+        setErrorMessage(ToDoServiceErrors.UnableToDeleteTodo);
       } finally {
         setLoadingTodo(null);
       }
@@ -284,32 +280,30 @@ export const useTodos = () => {
       );
       toCancelEditing();
     } catch (err) {
-      showError(ToDoServiceErrors.UnableToUpdateTodo);
+      setErrorMessage(ToDoServiceErrors.UnableToUpdateTodo);
     } finally {
       setLoadingTodo(null);
     }
   };
 
+  const updateEditingTodoTitle = useCallback((newTitle: string) => {
+    setEditingTodo(prev => (prev ? { ...prev, title: newTitle } : null));
+  }, []);
+
   return {
     todos,
-    setTodos,
     errorMessage,
-    setErrorMessage,
     isLoading,
-    setIsLoading,
     filterStatus,
     setFilterStatus,
     todosFiltered,
     tempTodo,
-    setTempTodo,
     loadingTodo,
-    setLoadingTodo,
     addTodo,
     toggleTodo,
     removeTodo,
     clearCompleted,
     toggleAll,
-    showError,
     title,
     setTitle,
     inputRef,
@@ -319,11 +313,11 @@ export const useTodos = () => {
     activeCount,
     completedCount,
     editingTodo,
-    setEditingTodo,
-    editingTitle,
-    setEditingTitle,
     toStartEditing,
     toCancelEditing,
     toSaveEditedTodo,
+    updateEditingTodoTitle,
+    clearError,
+    showError,
   };
 };
