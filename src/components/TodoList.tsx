@@ -6,26 +6,18 @@ interface TodoListProps {
   todosFiltered: Todo[];
   tempTodo: Todo | null;
   loadingTodo: number | 'initial' | null;
-  editingTodo: Todo | null;
   toggleTodo: (todoId: number) => Promise<void>;
   removeTodo: (todoId: number) => Promise<void>;
-  toStartEditing: (todo: Todo) => void;
-  toCancelEditing: () => void;
-  toSaveEditedTodo: (todoId: number, newTitle: string) => Promise<void>;
-  updateEditingTodoTitle: (newTitle: string) => void;
+  updateTodoTitle: (todoId: number, newTitle: string) => Promise<void>;
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
   todosFiltered,
   tempTodo,
   loadingTodo,
-  editingTodo,
   toggleTodo,
   removeTodo,
-  toStartEditing,
-  toCancelEditing,
-  toSaveEditedTodo,
-  updateEditingTodoTitle,
+  updateTodoTitle,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -37,13 +29,9 @@ export const TodoList: React.FC<TodoListProps> = ({
                 key={todo.id}
                 todo={todo}
                 loadingTodo={loadingTodo}
-                editingTodo={editingTodo}
                 onToggle={toggleTodo}
                 onRemove={removeTodo}
-                onStartEdit={toStartEditing}
-                onCancelEdit={toCancelEditing}
-                onSaveEdit={toSaveEditedTodo}
-                onUpdateEditingTitle={updateEditingTodoTitle}
+                onUpdateTitle={updateTodoTitle}
               />
             </CSSTransition>
           ))}
@@ -53,13 +41,9 @@ export const TodoList: React.FC<TodoListProps> = ({
                 key="temp-todo"
                 todo={tempTodo}
                 loadingTodo={loadingTodo}
-                editingTodo={editingTodo}
                 onToggle={toggleTodo}
                 onRemove={removeTodo}
-                onStartEdit={toStartEditing}
-                onCancelEdit={toCancelEditing}
-                onSaveEdit={toSaveEditedTodo}
-                onUpdateEditingTitle={updateEditingTodoTitle}
+                onUpdateTitle={updateTodoTitle}
               />
             </CSSTransition>
           )}

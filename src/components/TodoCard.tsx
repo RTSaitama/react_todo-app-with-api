@@ -1,35 +1,26 @@
-// TodoCard.tsx
 import { Todo } from '../types/typedefs';
 import classNames from 'classnames';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface TodoCardProps {
   todo: Todo;
   loadingTodo: number | 'initial' | null;
-  editingTodo: Todo | null;
   onToggle: (todoId: number) => Promise<void>;
   onRemove: (todoId: number) => Promise<void>;
-  onStartEdit: (todo: Todo) => void;
-  onCancelEdit: () => void;
-  onSaveEdit: (todoId: number, newTitle: string) => Promise<void>;
-  onUpdateEditingTitle: (newTitle: string) => void;
+  onUpdateTitle: (todoId: number, newTitle: string) => Promise<void>;
 }
 
 export const TodoCard: React.FC<TodoCardProps> = ({
   todo,
   loadingTodo,
-  editingTodo,
   onToggle,
   onRemove,
-  onStartEdit,
-  onCancelEdit,
-  onSaveEdit,
-  onUpdateEditingTitle,
+  onUpdateTitle,
 }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(todo.title);
   const isLoadingThisTodo = loadingTodo === todo.id;
   const isTemp = todo.id === 0;
-  const isEditing = editingTodo?.id === todo.id;
-  const editingTitle = editingTodo?.title || '';
 
   const editInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,24 +30,42 @@ export const TodoCard: React.FC<TodoCardProps> = ({
     }
   }, [isEditing]);
 
+  useEffect(() => {
+    if (!isEditing) {
+      setEditTitle(todo.title);
+    }
+  }, [todo.title, isEditing]);
+
   const handleDoubleClick = () => {
     if (!isLoadingThisTodo && !isTemp) {
-      onStartEdit(todo);
+      setIsEditing(true);
     }
+  };
+
+  const handleSave = async () => {
+    try {
+      await onUpdateTitle(todo.id, editTitle);
+      setIsEditing(false);
+    } catch (error) {}
+  };
+
+  const handleCancel = () => {
+    setEditTitle(todo.title);
+    setIsEditing(false);
   };
 
   const handleEditSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSaveEdit(todo.id, editingTitle);
+    handleSave();
   };
 
   const handleEditBlur = () => {
-    onSaveEdit(todo.id, editingTitle);
+    handleSave();
   };
 
   const handleEditKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      onCancelEdit();
+      handleCancel();
     }
   };
 
@@ -98,8 +107,8 @@ export const TodoCard: React.FC<TodoCardProps> = ({
             type="text"
             className="todo__title-field"
             placeholder="Empty todo will be deleted"
-            value={editingTitle}
-            onChange={event => onUpdateEditingTitle(event.target.value)}
+            value={editTitle}
+            onChange={event => setEditTitle(event.target.value)}
             onBlur={handleEditBlur}
             onKeyUp={handleEditKeyUp}
             disabled={isLoadingThisTodo}

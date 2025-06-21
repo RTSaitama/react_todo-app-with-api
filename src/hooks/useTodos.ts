@@ -33,7 +33,6 @@ export const useTodos = () => {
     null,
   );
   const [title, setTitle] = useState<string>('');
-  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -69,13 +68,10 @@ export const useTodos = () => {
       ? { id: 0, title: title.trim(), completed: false, userId: USER_ID }
       : null;
   const allCompleted = todos.length > 0 && todos.every(td => td.completed);
-  //юз мемо?
   const someCompleted = todos.some(td => td.completed);
-  //юз мемо?
   const activeCount = todos.filter(todo => !todo.completed).length;
-  //юз мемо?
   const completedCount = todos.filter(todo => todo.completed).length;
-  // юз мемо [todos, filterStatus] ?
+
   const todosFiltered = (() => {
     switch (filterStatus) {
       case FilterStatus.ACTIVE:
@@ -87,7 +83,6 @@ export const useTodos = () => {
     }
   })();
 
-  // юз коллбек [todos, allCompleted]
   const toggleAll = async () => {
     const newCompletedStatus = !allCompleted;
 
@@ -217,7 +212,6 @@ export const useTodos = () => {
     setTodos(stayingTodos);
   };
 
-  // юз коллбек [addTodo,title] ???
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -228,16 +222,7 @@ export const useTodos = () => {
     });
   };
 
-  const toStartEditing = useCallback((todo: Todo) => {
-    setEditingTodo(todo);
-  }, []);
-
-  const toCancelEditing = useCallback(() => {
-    setEditingTodo(null);
-  }, []);
-
-  // юзколлбек?
-  const toSaveEditedTodo = async (todoId: number, newTitle: string) => {
+  const updateTodoTitle = async (todoId: number, newTitle: string) => {
     const trimmedTitle = newTitle.trim();
     const originalTodo = todos.find(t => t.id === todoId);
 
@@ -246,8 +231,6 @@ export const useTodos = () => {
     }
 
     if (trimmedTitle === originalTodo.title) {
-      toCancelEditing();
-
       return;
     }
 
@@ -259,9 +242,9 @@ export const useTodos = () => {
         const todosAfterDelete = todos.filter(td => td.id !== todoId);
 
         setTodos(todosAfterDelete);
-        toCancelEditing();
       } catch (err) {
         setErrorMessage(ToDoServiceErrors.UnableToDeleteTodo);
+        throw err;
       } finally {
         setLoadingTodo(null);
       }
@@ -278,17 +261,13 @@ export const useTodos = () => {
           todo.id === todoId ? { ...todo, title: trimmedTitle } : todo,
         ),
       );
-      toCancelEditing();
     } catch (err) {
       setErrorMessage(ToDoServiceErrors.UnableToUpdateTodo);
+      throw err;
     } finally {
       setLoadingTodo(null);
     }
   };
-
-  const updateEditingTodoTitle = useCallback((newTitle: string) => {
-    setEditingTodo(prev => (prev ? { ...prev, title: newTitle } : null));
-  }, []);
 
   return {
     todos,
@@ -312,11 +291,7 @@ export const useTodos = () => {
     someCompleted,
     activeCount,
     completedCount,
-    editingTodo,
-    toStartEditing,
-    toCancelEditing,
-    toSaveEditedTodo,
-    updateEditingTodoTitle,
+    updateTodoTitle,
     clearError,
     showError,
   };

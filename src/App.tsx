@@ -30,14 +30,10 @@ export const App: React.FC = () => {
     inputRef,
     todosFiltered,
     tempTodo,
-    editingTodo,
     toggleTodo,
     removeTodo,
-    toStartEditing,
-    toCancelEditing,
-    toSaveEditedTodo,
-    updateEditingTodoTitle,
     showError,
+    updateTodoTitle,
   } = useTodos();
 
   if (!USER_ID) {
@@ -73,13 +69,9 @@ export const App: React.FC = () => {
           todosFiltered={todosFiltered}
           tempTodo={tempTodo}
           loadingTodo={loadingTodo}
-          editingTodo={editingTodo}
           toggleTodo={toggleTodo}
           removeTodo={removeTodo}
-          toStartEditing={toStartEditing}
-          toCancelEditing={toCancelEditing}
-          toSaveEditedTodo={toSaveEditedTodo}
-          updateEditingTodoTitle={updateEditingTodoTitle}
+          updateTodoTitle={updateTodoTitle}
         />
         {todos.length > 0 && (
           <Footer
